@@ -1,0 +1,61 @@
+<html>
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script>
+
+        
+    async function uploadData(imageOnly) {
+
+        var formData = new FormData();
+        formData.append("file",document.getElementById("dataFile").files[0])
+        var isRaw = $('input[name=isRaw]:checked').val();
+        var mapType = $('input[name=mapType]:checked').val();
+        console.log('imageOnly='+imageOnly+' isRaw='+isRaw+ ' mapType='+mapType);
+        await $.ajax({
+			type:'POST',
+            url: '/upload?imageOnly='+imageOnly+'&isRaw='+isRaw+'&mapType='+mapType,
+            data: formData,
+            processData: false,
+            contentType: false,
+			success: function(response){
+                console.log("Success: ", response);
+                console.log(typeof(response));
+                if(imageOnly == false) {
+                    //$('<iframe src="'+response+'" frameborder="0" scrolling="no" id="myFrame"></iframe>');
+                    $("#iframe").html("<iframe src='"+response+"' width=1075 height=800/><iframe>");
+                } else {
+
+                    $("#target").attr("src", response);
+                }
+			},
+			error: function(response) {
+				console.log('Error: ',response)
+			},
+			done: function (response) {
+				console.log('Complete')
+			},
+        });
+    }
+    </script>
+
+</head>
+<body>
+    <form action="/upload" method="post" enctype="multipart/form-data" id="fileUpload">
+        <input type="file" name="file" id="dataFile"/> <br><br>
+        Data Type : &nbsp;&nbsp;
+        <input type="radio" name="isRaw" value="true" checked> Spatial &nbsp;&nbsp;
+        <input type="radio" name="isRaw" value="false"> Non Spatial <br><br>
+        Map Type : &nbsp;&nbsp;
+        <input type="radio" name="mapType" value="choropleth" checked> Choropleth &nbsp;&nbsp;
+        <input type="radio" name="mapType" value="symbol"> Symbol <br><br>
+        <input type="button" onclick="uploadData(true)" value="Get Screenshot">
+        <input type="button" onclick="uploadData(false)" value="Show Data">
+        <!--<input type="submit">-->
+    </form>
+    <div id="iframe"></div>
+    <img id="target" width=1075 height=750/>
+
+</body>
+
+</html>
